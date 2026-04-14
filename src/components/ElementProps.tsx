@@ -106,6 +106,30 @@ export const ElementProps: React.FC<{ element: SvgElement }> = ({ element }) => 
             onKeyDown={handleTextKeyDown}
             className="bg-[#121416] border border-[#44474e] text-white rounded-[8px] p-2 w-full box-border text-[13.5px] mb-2 outline-none focus:border-[#03a9f4] transition-colors"
           />
+          <div className="grid grid-cols-2 gap-2 mb-2">
+            <div className="bg-[#121416] rounded-[8px] px-2 py-1.5 border border-[#44474e] relative focus-within:border-[#03a9f4]">
+                <label className="text-[9px] text-[#03a9f4] absolute -top-[6px] left-[10px] bg-[#2a2d31] px-1 font-bold">W</label>
+                <input 
+                    type="number" 
+                    value={(element as TextElement).tLen ?? ''} 
+                    onChange={(e) => {
+                        const val = e.target.value;
+                        updateElementWithHistory(element.id, { tLen: val === '' ? undefined : Number(val) });
+                    }}
+                    className="bg-transparent border-none text-white w-full text-[13.5px] outline-none" 
+                    placeholder="Auto"
+                />
+            </div>
+            <div className="bg-[#121416] rounded-[8px] px-2 py-1.5 border border-[#44474e] relative focus-within:border-[#03a9f4]">
+                <label className="text-[9px] text-[#03a9f4] absolute -top-[6px] left-[10px] bg-[#2a2d31] px-1 font-bold">H</label>
+                <input 
+                    type="number" 
+                    value={(element as TextElement).size} 
+                    onChange={(e) => updateElementWithHistory(element.id, { size: Number(e.target.value) })}
+                    className="bg-transparent border-none text-white w-full text-[13.5px] outline-none" 
+                />
+            </div>
+          </div>
           <select 
             value={element.font}
             onChange={(e) => updateElementWithHistory(element.id, { font: e.target.value })}
@@ -167,28 +191,50 @@ export const ElementProps: React.FC<{ element: SvgElement }> = ({ element }) => 
 
       {element.type === 'circle' && (
         <>
-            <div className="bg-[#121416] rounded-[8px] px-2 py-1.5 border border-[#44474e] relative focus-within:border-[#03a9f4] mb-2">
-                <label className="text-[9px] text-[#03a9f4] absolute -top-[6px] left-[10px] bg-[#2a2d31] px-1 font-bold">RADIO</label>
-                <input 
-                    type="number" 
-                    value={(element as CircleElement).r} 
-                    onChange={(e) => updateElementWithHistory(element.id, { r: Number(e.target.value) })}
-                    className="bg-transparent border-none text-white w-full text-[13.5px] outline-none" 
-                />
+            <div className="grid grid-cols-2 gap-2 mb-2">
+                <div className="bg-[#121416] rounded-[8px] px-2 py-1.5 border border-[#44474e] relative focus-within:border-[#03a9f4]">
+                    <label className="text-[9px] text-[#03a9f4] absolute -top-[6px] left-[10px] bg-[#2a2d31] px-1 font-bold">W</label>
+                    <input 
+                        type="number" 
+                        value={(element as CircleElement).r * 2} 
+                        onChange={(e) => updateElementWithHistory(element.id, { r: Number(e.target.value) / 2 })}
+                        className="bg-transparent border-none text-white w-full text-[13.5px] outline-none" 
+                    />
+                </div>
+                <div className="bg-[#121416] rounded-[8px] px-2 py-1.5 border border-[#44474e] relative focus-within:border-[#03a9f4]">
+                    <label className="text-[9px] text-[#03a9f4] absolute -top-[6px] left-[10px] bg-[#2a2d31] px-1 font-bold">H</label>
+                    <input 
+                        type="number" 
+                        value={(element as CircleElement).r * 2} 
+                        onChange={(e) => updateElementWithHistory(element.id, { r: Number(e.target.value) / 2 })}
+                        className="bg-transparent border-none text-white w-full text-[13.5px] outline-none" 
+                    />
+                </div>
             </div>
         </>
       )}
 
       {element.type === 'triangle' && (
         <>
-            <div className="bg-[#121416] rounded-[8px] px-2 py-1.5 border border-[#44474e] relative focus-within:border-[#03a9f4] mb-2">
-                <label className="text-[9px] text-[#03a9f4] absolute -top-[6px] left-[10px] bg-[#2a2d31] px-1 font-bold">TAMAÑO</label>
-                <input 
-                    type="number" 
-                    value={(element as TriangleElement).size} 
-                    onChange={(e) => updateElementWithHistory(element.id, { size: Number(e.target.value) })}
-                    className="bg-transparent border-none text-white w-full text-[13.5px] outline-none" 
-                />
+            <div className="grid grid-cols-2 gap-2 mb-2">
+                <div className="bg-[#121416] rounded-[8px] px-2 py-1.5 border border-[#44474e] relative focus-within:border-[#03a9f4]">
+                    <label className="text-[9px] text-[#03a9f4] absolute -top-[6px] left-[10px] bg-[#2a2d31] px-1 font-bold">W</label>
+                    <input 
+                        type="number" 
+                        value={(element as TriangleElement).size} 
+                        onChange={(e) => updateElementWithHistory(element.id, { size: Number(e.target.value) })}
+                        className="bg-transparent border-none text-white w-full text-[13.5px] outline-none" 
+                    />
+                </div>
+                <div className="bg-[#121416] rounded-[8px] px-2 py-1.5 border border-[#44474e] relative focus-within:border-[#03a9f4]">
+                    <label className="text-[9px] text-[#03a9f4] absolute -top-[6px] left-[10px] bg-[#2a2d31] px-1 font-bold">H</label>
+                    <input 
+                        type="number" 
+                        value={(element as TriangleElement).size} 
+                        onChange={(e) => updateElementWithHistory(element.id, { size: Number(e.target.value) })}
+                        className="bg-transparent border-none text-white w-full text-[13.5px] outline-none" 
+                    />
+                </div>
             </div>
         </>
       )}
@@ -197,20 +243,20 @@ export const ElementProps: React.FC<{ element: SvgElement }> = ({ element }) => 
         <>
             <div className="grid grid-cols-2 gap-2 mb-2">
                 <div className="bg-[#121416] rounded-[8px] px-2 py-1.5 border border-[#44474e] relative focus-within:border-[#03a9f4]">
-                    <label className="text-[9px] text-[#03a9f4] absolute -top-[6px] left-[10px] bg-[#2a2d31] px-1 font-bold">RX</label>
+                    <label className="text-[9px] text-[#03a9f4] absolute -top-[6px] left-[10px] bg-[#2a2d31] px-1 font-bold">W</label>
                     <input 
                         type="number" 
-                        value={(element as OvalElement).rx} 
-                        onChange={(e) => updateElementWithHistory(element.id, { rx: Number(e.target.value) })}
+                        value={(element as OvalElement).rx * 2} 
+                        onChange={(e) => updateElementWithHistory(element.id, { rx: Number(e.target.value) / 2 })}
                         className="bg-transparent border-none text-white w-full text-[13.5px] outline-none" 
                     />
                 </div>
                 <div className="bg-[#121416] rounded-[8px] px-2 py-1.5 border border-[#44474e] relative focus-within:border-[#03a9f4]">
-                    <label className="text-[9px] text-[#03a9f4] absolute -top-[6px] left-[10px] bg-[#2a2d31] px-1 font-bold">RY</label>
+                    <label className="text-[9px] text-[#03a9f4] absolute -top-[6px] left-[10px] bg-[#2a2d31] px-1 font-bold">H</label>
                     <input 
                         type="number" 
-                        value={(element as OvalElement).ry} 
-                        onChange={(e) => updateElementWithHistory(element.id, { ry: Number(e.target.value) })}
+                        value={(element as OvalElement).ry * 2} 
+                        onChange={(e) => updateElementWithHistory(element.id, { ry: Number(e.target.value) / 2 })}
                         className="bg-transparent border-none text-white w-full text-[13.5px] outline-none" 
                     />
                 </div>

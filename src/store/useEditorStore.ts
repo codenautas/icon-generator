@@ -41,7 +41,7 @@ const initialState: ProjectState = {
     },
     entorno: { 
       id: 'entorno', name: 'Texto Modo', type: 'text', 
-      text: 'TEST', x: 256, y: 33, size: 36, weight: 900, 
+      text: 'TEST', x: 256, y: 33, size: 36, weight: 900, tLen: 120,
       font: "'Roboto', sans-serif", scaleX: 1, scaleY: 1, rotate: 0, visible: true 
     },
     operativo: { 
@@ -61,7 +61,7 @@ const initialState: ProjectState = {
     },
     onda: { 
       id: 'onda', name: 'Onda', type: 'text', 
-      text: '261', x: 488, y: 290, size: 72, weight: 800, opacity: 0.7, 
+      text: '261', x: 488, y: 290, size: 72, weight: 800, opacity: 0.7, tLen: 150,
       font: "'Roboto', sans-serif", scaleX: 1, scaleY: 1, rotate: 90, 
       visible: true, align: 'start', baseline: 'hanging' 
     }
