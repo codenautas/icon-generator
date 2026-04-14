@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #03a9f4;
+  --color-bg-dark: #121416;
+  --color-surface: #1e2023;
+  --color-surface-hover: #31353a;
+  --color-surface-border: #2a2d31;
+  --color-outline: #44474e;
+  --color-on-surface: #e2e2e6;
+}
+
+:root {
+  background-color: var(--color-bg-dark);
+  color: var(--color-on-surface);
+}
+
+body {
+  margin: 0;
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  font-family: 'Roboto', sans-serif;
+}
+
+#root {
+  display: flex;
+  flex: 1;
+  width: 100%;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 10px;
+}
+
+/* Dragging class */
+.draggable {
+  cursor: grab;
+}
+.draggable:active {
+  cursor: grabbing;
+}
