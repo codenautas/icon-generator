@@ -2,7 +2,7 @@ import React from 'react';
 import { useEditorStore } from '../store/useEditorStore';
 import { ElementProps } from './ElementProps';
 import { Palette } from './Palette';
-import { exportSvgToPng, downloadProjectJson } from '../utils/exportUtils';
+import { exportSvgToPng, exportIconsZip, downloadProjectJson } from '../utils/exportUtils';
 
 const SWATCHES_BASE = [
   "#138EE5", "#673AB7", "#D81B60", "#FFC107", "#2AAC01", "#14532D", 
@@ -37,10 +37,17 @@ export const Sidebar: React.FC = () => {
     a.click();
   };
 
-  const handleExportPNGs = () => {
+  const handleExportPNG = () => {
     const svgElement = document.getElementById('mainSvg');
     if (!svgElement) return;
-    exportSvgToPng(svgElement as unknown as SVGSVGElement, [192, 512, 1024], [192, 512, 1024], 'logo_generado');
+    // Exportar solo el tamaño definido actualmente
+    exportSvgToPng(svgElement as unknown as SVGSVGElement, [canvasWidth], [canvasHeight], 'logo_generado');
+  };
+
+  const handleExportZip = () => {
+    const svgElement = document.getElementById('mainSvg');
+    if (!svgElement) return;
+    exportIconsZip(svgElement as unknown as SVGSVGElement, [32, 48, 64, 72, 192, 512], 'iconos_repsic');
   };
 
   const handleSaveJson = () => {
@@ -147,17 +154,26 @@ export const Sidebar: React.FC = () => {
           GUARDAR PROY.
         </button>
         
+        {canvasWidth === canvasHeight && (
+          <button 
+            onClick={handleExportZip}
+            className="border-none p-3 rounded-[24px] font-bold text-[11px] cursor-pointer transition-colors bg-[#03a9f4] text-[#003544] hover:bg-[#29b6f6] col-span-2"
+          >
+            EXPORTAR ZIP PARA PWA
+          </button>
+        )}
+        
         <button 
           onClick={handleDownloadSVG}
-          className="border-none p-3 rounded-[24px] font-bold text-[11px] cursor-pointer transition-colors bg-white text-black hover:bg-[#e0e0e0]"
+          className="border-none p-3 rounded-[24px] font-bold text-[11px] cursor-pointer transition-colors bg-white text-black hover:bg-[#e0e0e0] col-span-1"
         >
           EXPORTAR SVG
         </button>
         <button 
-          onClick={handleExportPNGs}
-          className="border-none p-3 rounded-[24px] font-bold text-[11px] cursor-pointer transition-colors bg-[#03a9f4] text-[#003544] hover:bg-[#29b6f6]"
+          onClick={handleExportPNG}
+          className="border-none p-3 rounded-[24px] font-bold text-[11px] cursor-pointer transition-colors bg-[#3f474e] text-white hover:bg-[#4a555e] col-span-1"
         >
-          EXPORTAR PNGs
+          EXPORTAR PNG
         </button>
         
         <div className="col-span-2 grid grid-cols-2 gap-2 mt-1">

@@ -132,6 +132,7 @@ export const Canvas: React.FC = () => {
           })}
 
           <path 
+            id="export-ignore-dimmer"
             fill="#0b0c0d" 
             fillOpacity="0.6" 
             fillRule="evenodd" 
