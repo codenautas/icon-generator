@@ -7,6 +7,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   return {
     plugins: [react(), tailwindcss()],
+    base: '/icon-generator/',
     server: {
       port: parseInt(env.VITE_PORT) || 5173,
     }
