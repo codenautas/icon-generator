@@ -1,77 +1,59 @@
 import JSZip from 'jszip';
 
-export const exportSvgToPng = (svgElement: SVGSVGElement, widths: number[], heights: number[], fileName = 'icon') => {
+export const exportEverything = async (
+  svgElement: SVGSVGElement, 
+  canvasWidth: number, 
+  canvasHeight: number, 
+  projectState: any, 
+  fileName = 'proyecto_iconos'
+) => {
+  const zip = new JSZip();
+  const folder = zip.folder(fileName) || zip;
+
+  // 1. Prepare SVG Clone
   const clone = svgElement.cloneNode(true) as SVGSVGElement;
   clone.style.cursor = '';
   clone.style.maxWidth = '';
   clone.style.maxHeight = '';
-  
-  // Remove dimmer if present
   const dimmer = clone.querySelector('#export-ignore-dimmer');
   if (dimmer) dimmer.remove();
   
-  const originalWidth = Number(svgElement.getAttribute('viewBox')?.split(' ')[2] || 512);
-  const originalHeight = Number(svgElement.getAttribute('viewBox')?.split(' ')[3] || 512);
-  
-  clone.setAttribute('width', originalWidth.toString());
-  clone.setAttribute('height', originalHeight.toString());
+  clone.setAttribute('width', canvasWidth.toString());
+  clone.setAttribute('height', canvasHeight.toString());
   
   const svgString = new XMLSerializer().serializeToString(clone);
   
-  widths.forEach((width, index) => {
-    const height = heights[index];
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(svgBlob);
-    
-    img.onload = () => {
-      ctx?.drawImage(img, 0, 0, width, height);
-      URL.revokeObjectURL(url);
-      
-      const pngUrl = canvas.toDataURL('image/png');
-      const a = document.createElement('a');
-      a.href = pngUrl;
-      a.download = `${fileName}_${width}x${height}.png`;
-      a.click();
-    };
-    img.src = url;
-  });
-};
+  // Add SVG to ZIP
+  folder.file(`${fileName}.svg`, svgString);
 
-export const exportIconsZip = async (svgElement: SVGSVGElement, sizes: number[], fileName = 'iconos_repsic') => {
-  const zip = new JSZip();
-  const folder = zip.folder(fileName);
+  // 2. Add Project Source (.icgen)
+  const projectJson = JSON.stringify(projectState, null, 2);
+  folder.file(`${fileName}.icgen`, projectJson);
+
+  // 3. Prepare PNG(s)
+  const isSquare = canvasWidth === canvasHeight;
+  const sizes = isSquare ? [32, 48, 64, 72, 128, 192, 512] : [{ w: canvasWidth, h: canvasHeight }];
   
-  const clone = svgElement.cloneNode(true) as SVGSVGElement;
-  const dimmer = clone.querySelector('#export-ignore-dimmer');
-  if (dimmer) dimmer.remove();
-  
-  const originalWidth = Number(svgElement.getAttribute('viewBox')?.split(' ')[2] || 512);
-  const originalHeight = Number(svgElement.getAttribute('viewBox')?.split(' ')[3] || 512);
-  clone.setAttribute('width', originalWidth.toString());
-  clone.setAttribute('height', originalHeight.toString());
-  
-  const svgString = new XMLSerializer().serializeToString(clone);
   const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
   const url = URL.createObjectURL(svgBlob);
 
-  const promises = sizes.map((size) => {
+  const pngPromises = sizes.map((size) => {
     return new Promise<void>((resolve) => {
+      const width = typeof size === 'number' ? size : size.w;
+      const height = typeof size === 'number' ? size : size.h;
+      
       const canvas = document.createElement('canvas');
-      canvas.width = size;
-      canvas.height = size;
+      canvas.width = width;
+      canvas.height = height;
       const ctx = canvas.getContext('2d');
       const img = new Image();
       
       img.onload = () => {
-        ctx?.drawImage(img, 0, 0, size, size);
+        ctx?.drawImage(img, 0, 0, width, height);
         canvas.toBlob((blob) => {
-          if (blob && folder) {
-            folder.file(`${size}x${size}.png`, blob);
+          if (blob) {
+            const name = isSquare ? `${width}x${width}.png` : `${fileName}.png`;
+            folder.file(name, blob);
           }
           resolve();
         }, 'image/png');
@@ -80,9 +62,10 @@ export const exportIconsZip = async (svgElement: SVGSVGElement, sizes: number[],
     });
   });
 
-  await Promise.all(promises);
+  await Promise.all(pngPromises);
   URL.revokeObjectURL(url);
 
+  // 4. Generate and Download ZIP
   const content = await zip.generateAsync({ type: 'blob' });
   const zipUrl = URL.createObjectURL(content);
   const a = document.createElement('a');
@@ -92,10 +75,11 @@ export const exportIconsZip = async (svgElement: SVGSVGElement, sizes: number[],
   URL.revokeObjectURL(zipUrl);
 };
 
+// Deprecated functions kept for compatibility if needed, but we should remove them eventually
 export const downloadProjectJson = (state: any) => {
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
   const dlAnchorElem = document.createElement('a');
   dlAnchorElem.setAttribute("href", dataStr);
-  dlAnchorElem.setAttribute("download", "proyecto_iconos.json");
+  dlAnchorElem.setAttribute("download", "proyecto_iconos.icgen");
   dlAnchorElem.click();
 };

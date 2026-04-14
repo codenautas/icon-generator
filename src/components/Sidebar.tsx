@@ -1,8 +1,9 @@
 import React from 'react';
+import JSZip from 'jszip';
 import { useEditorStore } from '../store/useEditorStore';
 import { ElementProps } from './ElementProps';
 import { Palette } from './Palette';
-import { exportSvgToPng, exportIconsZip, downloadProjectJson } from '../utils/exportUtils';
+import { exportEverything } from '../utils/exportUtils';
 
 const SWATCHES_BASE = [
   "#138EE5", "#673AB7", "#D81B60", "#FFC107", "#2AAC01", "#14532D", 
@@ -20,60 +21,64 @@ export const Sidebar: React.FC = () => {
     elements, undo, past, resetProject, loadProject, addElement
   } = useEditorStore();
 
-  const handleDownloadSVG = () => {
+  const handleExport = async () => {
     const svgElement = document.getElementById('mainSvg');
     if (!svgElement) return;
-    const clone = svgElement.cloneNode(true) as unknown as SVGSVGElement;
-    clone.style.cursor = '';
-    clone.style.maxWidth = '';
-    clone.style.maxHeight = '';
     
-    const svgString = new XMLSerializer().serializeToString(clone);
-    const blob = new Blob([svgString], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'logo_generado.svg';
-    a.click();
-  };
-
-  const handleExportPNG = () => {
-    const svgElement = document.getElementById('mainSvg');
-    if (!svgElement) return;
-    // Exportar solo el tamaño definido actualmente
-    exportSvgToPng(svgElement as unknown as SVGSVGElement, [canvasWidth], [canvasHeight], 'logo_generado');
-  };
-
-  const handleExportZip = () => {
-    const svgElement = document.getElementById('mainSvg');
-    if (!svgElement) return;
-    exportIconsZip(svgElement as unknown as SVGSVGElement, [32, 48, 64, 72, 192, 512], 'iconos_repsic');
-  };
-
-  const handleSaveJson = () => {
     const state = useEditorStore.getState();
-    downloadProjectJson({
+    const projectData = {
       canvasWidth: state.canvasWidth,
       canvasHeight: state.canvasHeight,
       colorBase: state.colorBase,
       colorText: state.colorText,
       elements: state.elements
-    });
+    };
+
+    await exportEverything(
+      svgElement as unknown as SVGSVGElement,
+      canvasWidth,
+      canvasHeight,
+      projectData,
+      'logo_generado'
+    );
   };
 
-  const handleLoadProject = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLoadProject = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
+
+    const fileName = file.name.toLowerCase();
+    
+    if (fileName.endsWith('.zip')) {
       try {
-        const state = JSON.parse(event.target?.result as string);
-        loadProject(state);
+        const zip = new JSZip();
+        const content = await zip.loadAsync(file);
+        const icgenFile = Object.keys(content.files).find(name => name.endsWith('.icgen'));
+        
+        if (icgenFile) {
+          const jsonString = await content.files[icgenFile].async('text');
+          const state = JSON.parse(jsonString);
+          loadProject(state);
+          return;
+        } else {
+          alert("No se encontró un archivo .icgen dentro del ZIP.");
+        }
       } catch (err) {
-        alert("Error cargando el proyecto JSON.");
+        alert("Error al procesar el archivo ZIP.");
       }
-    };
-    reader.readAsText(file);
+    } else {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const state = JSON.parse(event.target?.result as string);
+          loadProject(state);
+        } catch (err) {
+          alert("Error cargando el proyecto (.icgen o .json).");
+        }
+      };
+      reader.readAsText(file);
+    }
+    
     e.target.value = ''; // Reset input
   };
 
@@ -143,40 +148,19 @@ export const Sidebar: React.FC = () => {
       </div>
 
       <div className="mt-auto grid grid-cols-2 gap-2 pt-6 pb-2">
-        <label className="border-none p-3 rounded-[24px] font-bold text-[11px] cursor-pointer text-center transition-colors bg-[#2a2d31] text-white hover:bg-[#31353a] border border-[#44474e]">
+        <label className="border-none p-4 rounded-[24px] font-bold text-[12px] cursor-pointer text-center transition-colors bg-[#2a2d31] text-white hover:bg-[#31353a] border border-[#44474e] flex items-center justify-center">
           CARGAR PROY.
-          <input type="file" accept=".json" className="hidden" onChange={handleLoadProject} />
+          <input type="file" accept=".icgen,.json,.zip" className="hidden" onChange={handleLoadProject} />
         </label>
-        <button 
-          onClick={handleSaveJson}
-          className="border-none p-3 rounded-[24px] font-bold text-[11px] cursor-pointer transition-colors bg-[#2a2d31] text-white hover:bg-[#31353a] border border-[#44474e]"
-        >
-          GUARDAR PROY.
-        </button>
-        
-        {canvasWidth === canvasHeight && (
-          <button 
-            onClick={handleExportZip}
-            className="border-none p-3 rounded-[24px] font-bold text-[11px] cursor-pointer transition-colors bg-[#03a9f4] text-[#003544] hover:bg-[#29b6f6] col-span-2"
-          >
-            EXPORTAR ZIP PARA PWA
-          </button>
-        )}
         
         <button 
-          onClick={handleDownloadSVG}
-          className="border-none p-3 rounded-[24px] font-bold text-[11px] cursor-pointer transition-colors bg-white text-black hover:bg-[#e0e0e0] col-span-1"
+          onClick={handleExport}
+          className="border-none p-4 rounded-[24px] font-bold text-[14px] cursor-pointer transition-colors bg-[#03a9f4] text-[#003544] hover:bg-[#29b6f6] flex items-center justify-center"
         >
-          EXPORTAR SVG
-        </button>
-        <button 
-          onClick={handleExportPNG}
-          className="border-none p-3 rounded-[24px] font-bold text-[11px] cursor-pointer transition-colors bg-[#3f474e] text-white hover:bg-[#4a555e] col-span-1"
-        >
-          EXPORTAR PNG
+          EXPORTAR
         </button>
         
-        <div className="col-span-2 grid grid-cols-2 gap-2 mt-1">
+        <div className="col-span-2 grid grid-cols-2 gap-2 mt-2">
           <button 
             onClick={() => {
               (document.activeElement as HTMLElement)?.blur();
