@@ -5,10 +5,32 @@ export const exportEverything = async (
   canvasWidth: number, 
   canvasHeight: number, 
   projectState: any, 
-  fileName = 'proyecto_iconos'
+  namingOptions?: {
+    operativo: string;
+    onda: string;
+    entorno?: string;
+  }
 ) => {
+  const isSquare = canvasWidth === canvasHeight;
+  let zipName = 'proyecto_iconos';
+  let baseFileName = 'logo';
+
+  if (namingOptions && isSquare) {
+    const { operativo, onda, entorno } = namingOptions;
+    const suffix = entorno ? `_${entorno}` : '';
+    zipName = `${operativo}-${onda}`;
+    baseFileName = `${operativo}_${onda}-logo-dm${suffix}`;
+  } else if (namingOptions && !isSquare) {
+    // If rectangular and namingOptions provided, zip name still follows operative-onda
+    zipName = `${namingOptions.operativo}-${namingOptions.onda}`;
+    baseFileName = 'logo';
+  }
+
   const zip = new JSZip();
-  const folder = zip.folder(fileName) || zip;
+  // We use the root of the ZIP if we want, or a folder. 
+  // The user said "el zip debe tener el mismo nombre que el operativo-onda", 
+  // usually implying the filename of the .zip file.
+  const folder = zip; // Save files directly in zip root as per common icon pack structures
 
   // 1. Prepare SVG Clone
   const clone = svgElement.cloneNode(true) as SVGSVGElement;
@@ -24,14 +46,13 @@ export const exportEverything = async (
   const svgString = new XMLSerializer().serializeToString(clone);
   
   // Add SVG to ZIP
-  folder.file(`${fileName}.svg`, svgString);
+  folder.file(`${baseFileName}.svg`, svgString);
 
   // 2. Add Project Source (.icgen)
   const projectJson = JSON.stringify(projectState, null, 2);
-  folder.file(`${fileName}.icgen`, projectJson);
+  folder.file(`${baseFileName}.icgen`, projectJson);
 
   // 3. Prepare PNG(s)
-  const isSquare = canvasWidth === canvasHeight;
   const sizes = isSquare ? [32, 48, 64, 72, 128, 192, 512] : [{ w: canvasWidth, h: canvasHeight }];
   
   const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
@@ -52,7 +73,18 @@ export const exportEverything = async (
         ctx?.drawImage(img, 0, 0, width, height);
         canvas.toBlob((blob) => {
           if (blob) {
-            const name = isSquare ? `${width}x${width}.png` : `${fileName}.png`;
+            let name = '';
+            if (isSquare) {
+              if (namingOptions) {
+                const { operativo, onda, entorno } = namingOptions;
+                const suffix = entorno ? `_${entorno}` : '';
+                name = `${operativo}_${onda}-logo-dm-${width}${suffix}.png`;
+              } else {
+                name = `${width}x${width}.png`;
+              }
+            } else {
+              name = `${baseFileName}.png`;
+            }
             folder.file(name, blob);
           }
           resolve();
@@ -70,7 +102,7 @@ export const exportEverything = async (
   const zipUrl = URL.createObjectURL(content);
   const a = document.createElement('a');
   a.href = zipUrl;
-  a.download = `${fileName}.zip`;
+  a.download = `${zipName}.zip`;
   a.click();
   URL.revokeObjectURL(zipUrl);
 };

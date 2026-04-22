@@ -4,6 +4,7 @@ import { useEditorStore } from '../store/useEditorStore';
 import { ElementProps } from './ElementProps';
 import { Palette } from './Palette';
 import { exportEverything } from '../utils/exportUtils';
+import { ExportModal } from './ExportModal';
 
 const SWATCHES_BASE = [
   "#138EE5", "#673AB7", "#D81B60", "#FFC107", "#2AAC01", "#14532D", 
@@ -21,9 +22,18 @@ export const Sidebar: React.FC = () => {
     elements, undo, past, resetProject, loadProject, addElement
   } = useEditorStore();
 
-  const handleExport = async () => {
+  const [isExportModalOpen, setIsExportModalOpen] = React.useState(false);
+
+  const handleExport = () => {
+    setIsExportModalOpen(true);
+  };
+
+  const handleConfirmExport = async (data: { operativo: string, onda: string, entorno: string }) => {
     const svgElement = document.getElementById('mainSvg');
     if (!svgElement) return;
+
+    const { operativo, onda, entorno } = data;
+    setIsExportModalOpen(false);
     
     const state = useEditorStore.getState();
     const projectData = {
@@ -40,7 +50,7 @@ export const Sidebar: React.FC = () => {
       canvasWidth,
       canvasHeight,
       projectData,
-      'logo_generado'
+      { operativo, onda, entorno }
     );
   };
 
@@ -189,6 +199,12 @@ export const Sidebar: React.FC = () => {
           </button>
         </div>
       </div>
+      
+      <ExportModal 
+        isOpen={isExportModalOpen} 
+        onClose={() => setIsExportModalOpen(false)} 
+        onConfirm={handleConfirmExport} 
+      />
     </div>
   );
 };

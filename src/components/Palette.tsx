@@ -20,14 +20,27 @@ export const Palette: React.FC<PaletteProps> = ({ title, swatches, value, onChan
             style={{ backgroundColor: color }}
           />
         ))}
-        <div className="col-span-6 mt-2 flex items-center gap-2.5 bg-[#121416] py-1.5 px-3 rounded-[12px]">
-          <label className="text-[10.5px] text-[#888] flex-1 font-bold">COLOR PERSONALIZADO</label>
+        <div className="col-span-6 mt-2 flex items-center gap-2 bg-[#121416] py-1 px-2 rounded-[12px] border border-[#44474e] focus-within:border-[#03a9f4]">
+          <div className="text-[#03a9f4] text-[12px] font-mono font-bold pl-1">#</div>
           <input 
-            type="color" 
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            className="w-10 h-6 border-none bg-transparent cursor-pointer p-0"
+            type="text" 
+            value={value.replace('#', '').toUpperCase()}
+            onChange={(e) => {
+              const val = e.target.value.replace(/[^0-9A-Fa-f]/g, '').slice(0, 6);
+              onChange(`#${val}`);
+            }}
+            className="bg-transparent border-none text-white text-[12px] w-full outline-none font-mono tracking-wider"
+            placeholder="000000"
           />
+          <div className="w-[1px] h-4 bg-[#333] mx-1" />
+          <div className="relative w-6 h-6 rounded-full overflow-hidden border border-white/20">
+            <input 
+              type="color" 
+              value={value.length === 7 ? value : '#000000'}
+              onChange={(e) => onChange(e.target.value)}
+              className="absolute -inset-2 w-[150%] h-[150%] cursor-pointer border-none bg-transparent appearance-none"
+            />
+          </div>
         </div>
       </div>
     </div>
