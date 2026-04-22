@@ -11,6 +11,7 @@ interface EditorState extends ProjectState {
   setColorBase: (color: string) => void;
   setColorText: (color: string) => void;
   setCanvasDimensions: (width: number, height: number) => void;
+  setCanvasBorderRadius: (radius: number) => void;
   updateElement: (id: string, updates: Partial<SvgElement>) => void;
   updateElementWithHistory: (id: string, updates: Partial<SvgElement>) => void;
   toggleVisibility: (id: string) => void;
@@ -31,6 +32,7 @@ interface EditorState extends ProjectState {
 const initialState: ProjectState = {
   canvasWidth: 512,
   canvasHeight: 512,
+  borderRadius: 80,
   colorBase: '#138EE5',
   colorText: '#FFFFFF',
   elements: {
@@ -85,6 +87,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const currentState: ProjectState = {
       canvasWidth: state.canvasWidth,
       canvasHeight: state.canvasHeight,
+      borderRadius: state.borderRadius,
       colorBase: state.colorBase,
       colorText: state.colorText,
       elements: JSON.parse(JSON.stringify(state.elements)),
@@ -111,6 +114,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const currentState: ProjectState = {
       canvasWidth: state.canvasWidth,
       canvasHeight: state.canvasHeight,
+      borderRadius: state.borderRadius,
       colorBase: state.colorBase,
       colorText: state.colorText,
       elements: JSON.parse(JSON.stringify(state.elements)),
@@ -131,6 +135,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const currentState: ProjectState = {
       canvasWidth: state.canvasWidth,
       canvasHeight: state.canvasHeight,
+      borderRadius: state.borderRadius,
       colorBase: state.colorBase,
       colorText: state.colorText,
       elements: JSON.parse(JSON.stringify(state.elements)),
@@ -156,6 +161,11 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   setCanvasDimensions: (width, height) => {
     get().saveHistory();
     set({ canvasWidth: width, canvasHeight: height });
+  },
+
+  setCanvasBorderRadius: (radius) => {
+    get().saveHistory();
+    set({ borderRadius: radius });
   },
 
   // Direct update without stack push, useful during drag

@@ -3,7 +3,7 @@ import { useEditorStore } from '../store/useEditorStore';
 import type { RectElement, TextElement, CircleElement, TriangleElement, OvalElement } from '../types';
 
 export const Canvas: React.FC = () => {
-  const { canvasWidth, canvasHeight, colorBase, colorText, elements, updateElement, updateElementWithHistory, selectElement, selectedId } = useEditorStore();
+  const { canvasWidth, canvasHeight, borderRadius, colorBase, colorText, elements, updateElement, updateElementWithHistory, selectElement, selectedId } = useEditorStore();
   const svgRef = useRef<SVGSVGElement>(null);
   
   const [isDragging, setIsDragging] = useState(false);
@@ -54,6 +54,8 @@ export const Canvas: React.FC = () => {
     updateElementWithHistory(id, { rotate: newRotate });
   };
 
+  const r = borderRadius;
+
   return (
     <div className="flex-1 flex items-center justify-center bg-[#0b0c0d] relative overflow-hidden h-full" onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onMouseMove={handleMouseMove}>
       <div className="transition-all duration-300 ease-out bg-[#1e2023] p-10 rounded-[56px] shadow-[0_40px_100px_rgba(0,0,0,0.7)] flex items-center justify-center">
@@ -74,7 +76,7 @@ export const Canvas: React.FC = () => {
               <stop offset="100%" style={{ stopColor: 'black', stopOpacity: 0.2 }} />
             </linearGradient>
           </defs>
-          <rect width={canvasWidth} height={canvasHeight} fill={colorBase} rx="80" />
+          <rect width={canvasWidth} height={canvasHeight} fill={colorBase} rx={r} />
           
           {Object.values(elements).map(el => {
             if (!el.visible) return null;
@@ -136,7 +138,7 @@ export const Canvas: React.FC = () => {
             fill="#0b0c0d" 
             fillOpacity="0.6" 
             fillRule="evenodd" 
-            d={`M-2000,-2000 H2512 V2512 H-2000 Z M0,80 Q0,0 80,0 H${canvasWidth-80} Q${canvasWidth},0 ${canvasWidth},80 V${canvasHeight-80} Q${canvasWidth},${canvasHeight} ${canvasWidth-80},${canvasHeight} H80 Q0,${canvasHeight} 0,${canvasHeight-80} Z`}
+            d={`M-2000,-2000 H${canvasWidth + 2000} V${canvasHeight + 2000} H-2000 Z M0,${r} Q0,0 ${r},0 H${canvasWidth-r} Q${canvasWidth},0 ${canvasWidth},${r} V${canvasHeight-r} Q${canvasWidth},${canvasHeight} ${canvasWidth-r},${canvasHeight} H${r} Q0,${canvasHeight} 0,${canvasHeight-r} Z`}
             style={{ pointerEvents: 'none' }}
           />
         </svg>

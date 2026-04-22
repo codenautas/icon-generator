@@ -16,7 +16,7 @@ const SWATCHES_TEXT = [
 
 export const Sidebar: React.FC = () => {
   const { 
-    canvasWidth, canvasHeight, setCanvasDimensions, 
+    canvasWidth, canvasHeight, borderRadius, setCanvasDimensions, setCanvasBorderRadius,
     colorBase, colorText, setColorBase, setColorText, 
     elements, undo, past, resetProject, loadProject, addElement
   } = useEditorStore();
@@ -29,6 +29,7 @@ export const Sidebar: React.FC = () => {
     const projectData = {
       canvasWidth: state.canvasWidth,
       canvasHeight: state.canvasHeight,
+      borderRadius: state.borderRadius,
       colorBase: state.colorBase,
       colorText: state.colorText,
       elements: state.elements
@@ -90,7 +91,7 @@ export const Sidebar: React.FC = () => {
       <Palette title="Texto & Elementos" swatches={SWATCHES_TEXT} value={colorText} onChange={setColorText} />
 
       <h2 className="text-[#03a9f4] text-[10.5px] uppercase tracking-[1.5px] font-bold mt-4 mb-2">Lienzo</h2>
-      <div className="grid grid-cols-2 gap-2 mb-2">
+      <div className="grid grid-cols-3 gap-2 mb-2">
         <div className="bg-[#121416] rounded-[8px] px-2 py-1.5 border border-[#44474e] relative focus-within:border-[#03a9f4]">
           <label className="text-[9px] text-[#03a9f4] absolute -top-[6px] left-[10px] bg-[#2a2d31] px-1 font-bold">ANCHO</label>
           <input 
@@ -106,6 +107,15 @@ export const Sidebar: React.FC = () => {
             type="number" 
             value={canvasHeight} 
             onChange={(e) => setCanvasDimensions(canvasWidth, Number(e.target.value))}
+            className="bg-transparent border-none text-white w-full text-[13.5px] outline-none" 
+          />
+        </div>
+        <div className="bg-[#121416] rounded-[8px] px-2 py-1.5 border border-[#44474e] relative focus-within:border-[#03a9f4]">
+          <label className="text-[9px] text-[#03a9f4] absolute -top-[6px] left-[10px] bg-[#2a2d31] px-1 font-bold">RADIO</label>
+          <input 
+            type="number" 
+            value={borderRadius} 
+            onChange={(e) => setCanvasBorderRadius(Number(e.target.value))}
             className="bg-transparent border-none text-white w-full text-[13.5px] outline-none" 
           />
         </div>

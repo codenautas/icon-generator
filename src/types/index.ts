@@ -54,6 +54,7 @@ export type SvgElement = RectElement | CircleElement | TriangleElement | OvalEle
 export interface ProjectState {
   canvasWidth: number;
   canvasHeight: number;
+  borderRadius: number;
   colorBase: string;
   colorText: string;
   elements: Record<string, SvgElement>;
