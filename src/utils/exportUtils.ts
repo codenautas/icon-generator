@@ -79,6 +79,16 @@ export const exportEverything = async (
                 const { operativo, onda, entorno } = namingOptions;
                 const suffix = entorno ? `_${entorno}` : '';
                 name = `${operativo}_${onda}-logo-dm-${width}${suffix}.png`;
+
+                // Add extra specific files requested by the user
+                if (width === 192) {
+                  const extraName = `login-${entorno ? entorno + '-' : ''}logo-icon.png`;
+                  folder.file(extraName, blob);
+                }
+                if (width === 128) {
+                  const extraName = `logo-${entorno ? entorno + '-' : ''}128.png`;
+                  folder.file(extraName, blob);
+                }
               } else {
                 name = `${width}x${width}.png`;
               }
